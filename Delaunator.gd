@@ -478,7 +478,7 @@ func circumradius(ax, ay, bx, by, cx, cy):
 	var d
 	if (dx * ey - dy * ex) == 0:
 		d = INF
-	elif (dx * ey - dy * ex) == 0:
+	elif (dx * ey - dy * ex) == -0:
 		d = -INF
 	else:
 		d = 0.5 / (dx * ey - dy * ex)
@@ -503,7 +503,7 @@ func circumcenter(ax, ay, bx, by, cx, cy):
 	var d
 	if (dx * ey - dy * ex) == 0:
 		d = INF
-	elif (dx * ey - dy * ex) == 0:
+	elif (dx * ey - dy * ex) == -0:
 		d = -INF
 	else:
 		d = 0.5 / (dx * ey - dy * ex)
