@@ -3,23 +3,23 @@ class_name Delaunator
 const EPSILON = pow(2, -52)
 const EDGE_STACK = []
 
-var coords: Array # PoolRealArray.
-var halfedges: Array # PoolIntArray.
-var hull: Array # PoolIntArray.
-var triangles: Array # PoolIntArray.
-var triangles_len
+var coords = [] # PoolRealArray.
+var halfedges = [] # PoolIntArray.
+var hull = [] # PoolIntArray.
+var triangles = [] # PoolIntArray.
+var triangles_len = 0
 var _cx
 var _cy
-var _dists: Array # PoolRealArray.
-var _halfedges: Array # This array should be a PoolIntArray but we need to use the .slice() function on it.
+var _dists = [] # PoolRealArray.
+var _halfedges = [] # This array should be a PoolIntArray but we need to use the .slice() function on it.
 var _hash_size
-var _hull_hash: Array # PoolIntArray.
-var _hull_next: Array # PoolIntArray.
-var _hull_prev: Array # PoolIntArray.
+var _hull_hash = [] # PoolIntArray.
+var _hull_next = [] # PoolIntArray.
+var _hull_prev = [] # PoolIntArray.
 var _hull_start
-var _hull_tri: Array # PoolIntArray.
-var _ids: Array # PoolIntArray.
-var _triangles: Array  # This array should be a PoolIntArray but we need to use the .slice() function on it.
+var _hull_tri = [] # PoolIntArray.
+var _ids = [] # PoolIntArray.
+var _triangles = []  # This array should be a PoolIntArray but we need to use the .slice() function on it.
 
 
 func _init(points):
