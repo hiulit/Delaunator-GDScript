@@ -31,43 +31,43 @@ func _init(points):
 		push_error("Delaunator needs at least 3 points.")
 		return
 
-	self.coords.resize(n * 2)
+	coords.resize(n * 2)
 
-	for i in range(0, n):
+	for i in n:
 		var p = points[i]
-		self.coords[2 * i] = p[0]
-		self.coords[2 * i + 1] = p[1]
+		coords[2 * i] = p[0]
+		coords[2 * i + 1] = p[1]
 
-	return self._constructor()
+	_constructor()
 
 
 func _constructor():
-	var n = self.coords.size() >> 1
+	var n = coords.size() >> 1
 
 	# Arrays that will store the triangulation graph.
 	var max_triangles = max(2 * n - 5, 0)
-	self._triangles.resize(max_triangles * 3)
-	self._halfedges.resize(max_triangles * 3)
+	_triangles.resize(max_triangles * 3)
+	_halfedges.resize(max_triangles * 3)
 
 	# Temporary arrays for tracking the edges of the advancing convex hull.
-	self._hash_size = ceil(sqrt(n))
-	self._hull_prev.resize(n) # Edge to prev edge.
-	self._hull_next.resize(n) # Edge to next edge.
-	self._hull_tri.resize(n) # Edge to adjacent triangle.
+	_hash_size = ceil(sqrt(n))
+	_hull_prev.resize(n) # Edge to prev edge.
+	_hull_next.resize(n) # Edge to next edge.
+	_hull_tri.resize(n) # Edge to adjacent triangle.
 
-	self._hull_hash.resize(self._hash_size)
-	for i in self._hash_size:
-		self._hull_hash[i] = -1 # angular edge hash
+	_hull_hash.resize(_hash_size)
+	for i in _hash_size:
+		_hull_hash[i] = -1 # angular edge hash
 
 	# Temporary arrays for sorting points.
-	self._ids.resize(n)
-	self._dists.resize(n)
+	_ids.resize(n)
+	_dists.resize(n)
 
-	return self.update()
+	update()
 
 
 func update():
-	var n = self.coords.size() >> 1
+	var n = coords.size() >> 1
 
 	# Populate an array of point indices; calculate input data bbox.
 	var min_x = INF
@@ -75,14 +75,14 @@ func update():
 	var max_x = -INF
 	var max_y = -INF
 
-	for i in range(0, n):
-		var x = self.coords[2 * i]
-		var y = self.coords[2 * i + 1]
+	for i in n:
+		var x = coords[2 * i]
+		var y = coords[2 * i + 1]
 		if x < min_x: min_x = x
 		if y < min_y: min_y = y
 		if x > max_x: max_x = x
 		if y > max_y: max_y = y
-		self._ids[i] = i
+		_ids[i] = i
 
 	var cx = (min_x + max_x) / 2
 	var cy = (min_y + max_y) / 2
@@ -93,67 +93,71 @@ func update():
 	var i2 = 0
 
 	# Pick a seed point close to the center.
-	for i in range(0, n):
-		var d = self.dist(cx, cy, self.coords[2 * i], self.coords[2 * i + 1])
+	for i in n:
+		var d = dist(cx, cy, coords[2 * i], coords[2 * i + 1])
 		if (d < min_dist):
 			i0 = i
 			min_dist = d
-	var i0x = self.coords[2 * i0]
-	var i0y = self.coords[2 * i0 + 1]
+	var i0x = coords[2 * i0]
+	var i0y = coords[2 * i0 + 1]
 
 	min_dist = INF
 
 	# Find the point closest to the seed.
-	for i in range(0, n):
+	for i in n:
 		if i == i0: continue
-		var d = self.dist(i0x, i0y, self.coords[2 * i], self.coords[2 * i + 1])
+		var d = dist(i0x, i0y, coords[2 * i], coords[2 * i + 1])
 		if (d < min_dist and d > 0):
 			i1 = i
 			min_dist = d
-	var i1x = self.coords[2 * i1]
-	var i1y = self.coords[2 * i1 + 1]
+	var i1x = coords[2 * i1]
+	var i1y = coords[2 * i1 + 1]
 
 	var min_radius = INF
 
 	# Find the third point which forms the smallest circumcircle with the first two.
-	for i in range(0, n):
+	for i in n:
 		if i == i0 or i == i1: continue
-		var r = self.circumradius(i0x, i0y, i1x, i1y, self.coords[2 * i], self.coords[2 * i + 1])
+		var r = circumradius(i0x, i0y, i1x, i1y, coords[2 * i], coords[2 * i + 1])
 		if r < min_radius:
 			i2 = i
 			min_radius = r
-	var i2x = self.coords[2 * i2]
-	var i2y = self.coords[2 * i2 + 1]
+	var i2x = coords[2 * i2]
+	var i2y = coords[2 * i2 + 1]
 
 	if min_radius == INF:
 		# Order collinear points by dx (or dy if all x are identical)
 		# and return the list as a hull.
-		for i in range(0, n):
+		for i in n:
 			var _dist_temp
-			if self.coords[2 * i] - self.coords[0]:
-				_dist_temp = self.coords[2 * i] - self.coords[0]
-			elif self.coords[2 * i + 1] - self.coords[1]:
-				_dist_temp = self.coords[2 * i + 1] - self.coords[1]
-			self._dists[i] = _dist_temp
 
-		self.quicksort(self._ids, self._dists, 0, n - 1)
+			if coords[2 * i] - coords[0]:
+				_dist_temp = coords[2 * i] - coords[0]
+			elif coords[2 * i + 1] - coords[1]:
+				_dist_temp = coords[2 * i + 1] - coords[1]
+
+			_dists[i] = _dist_temp
+
+		quicksort(_ids, _dists, 0, n - 1)
 		var hull = []
 		hull.resize(n)
 		var j = 0
 		var d0 = -INF
 
-		for i in range(0, n):
-			var id = self._ids[i]
-			if self._dists[id] > d0:
+		for i in n:
+			var id = _ids[i]
+			if _dists[id] > d0:
 				hull[j] = id
 				j += 1
-				d0 = self._dists[id]
-		self.hull = hull.slice(0, j - 1)
-		self.triangles = []
-		self.halfedges = []
+				d0 = _dists[id]
+		hull = hull.slice(0, j - 1)
+		triangles = []
+		halfedges = []
+
+		return
 
 	# Swap the order of the seed points for counter-clockwise orientation.
-	if self.orient(i0x, i0y, i1x, i1y, i2x, i2y):
+	if orient(i0x, i0y, i1x, i1y, i2x, i2y):
 		var i = i1
 		var x = i1x
 		var y = i1y
@@ -164,48 +168,47 @@ func update():
 		i2x = x
 		i2y = y
 
-	var center = self.circumcenter(i0x, i0y, i1x, i1y, i2x, i2y)
-	self._cx = center[0]
-	self._cy = center[1]
+	var center = circumcenter(i0x, i0y, i1x, i1y, i2x, i2y)
+	_cx = center[0]
+	_cy = center[1]
 
-	for i in range(0, n):
-		self._dists[i] = self.dist(self.coords[2 * i], self.coords[2 * i + 1], center[0], center[1])
+	for i in n:
+		_dists[i] = dist(coords[2 * i], coords[2 * i + 1], center[0], center[1])
 
 	# Sort the points by distance from the seed triangle circumcenter.
-	self.quicksort(self._ids, self._dists, 0, n - 1)
+	quicksort(_ids, _dists, 0, n - 1)
 
 	# Set up the seed triangle as the starting hull.
-	self._hull_start = i0
+	_hull_start = i0
 	var hull_size = 3
 
-	self._hull_next[i0] = i1
-	self._hull_prev[i2] = i1
-	self._hull_next[i1] = i2
-	self._hull_prev[i0] = i2
-	self._hull_next[i2] = i0
-	self._hull_prev[i1] = i0
+	_hull_next[i0] = i1
+	_hull_prev[i2] = i1
+	_hull_next[i1] = i2
+	_hull_prev[i0] = i2
+	_hull_next[i2] = i0
+	_hull_prev[i1] = i0
 
-	self._hull_tri[i0] = 0
-	self._hull_tri[i1] = 1
-	self._hull_tri[i2] = 2
+	_hull_tri[i0] = 0
+	_hull_tri[i1] = 1
+	_hull_tri[i2] = 2
 
-#	for i in self._hull_hash.size():
-#		self._hull_hash[i] = -1
-#	print(self._hull_hash)
-	self._hull_hash[self._hash_key(i0x, i0y)] = i0
-	self._hull_hash[self._hash_key(i1x, i1y)] = i1
-	self._hull_hash[self._hash_key(i2x, i2y)] = i2
+	for i in _hull_hash.size():
+		_hull_hash[i] = -1
+	_hull_hash[_hash_key(i0x, i0y)] = i0
+	_hull_hash[_hash_key(i1x, i1y)] = i1
+	_hull_hash[_hash_key(i2x, i2y)] = i2
 
-	self.triangles_len = 0
-	self._add_triangle(i0, i1, i2, -1, -1, -1)
+#	triangles_len = 0
+	_add_triangle(i0, i1, i2, -1, -1, -1)
 
 	var xp = 0
 	var yp = 0
 
-	for k in range(0, self._ids.size()):
-		var i = self._ids[k]
-		var x = self.coords[2 * i]
-		var y = self.coords[2 * i + 1]
+	for k in _ids.size():
+		var i = _ids[k]
+		var x = coords[2 * i]
+		var y = coords[2 * i + 1]
 
 		# Skip near-duplicate points.
 		if k > 0 and abs(x - xp) <= EPSILON and abs(y - yp) <= EPSILON: continue
@@ -218,19 +221,18 @@ func update():
 
 		# Find a visible edge on the convex hull using edge hash.
 		var start = 0
-		var key = self._hash_key(x, y)
+		var key = _hash_key(x, y)
 
-		for j in range(0, self._hash_size):
-#				start = self._hull_hash[(key + j) % self._hash_size]
-			start = self._hull_hash[fmod((key + j), self._hash_size)]
-			if (start != -1 and start != self._hull_next[start]): break
+		for j in _hash_size:
+			start = _hull_hash[fmod((key + j), _hash_size)]
+			if (start != -1 and start != _hull_next[start]): break
 
-		start = self._hull_prev[start]
+		start = _hull_prev[start]
 		var e = start
 
 		while true:
-			var q = self._hull_next[e]
-			if self.orient(x, y, self.coords[2 * e], self.coords[2 * e + 1], self.coords[2 * q], self.coords[2 * q + 1]): break
+			var q = _hull_next[e]
+			if orient(x, y, coords[2 * e], coords[2 * e + 1], coords[2 * q], coords[2 * q + 1]): break
 			e = q
 			
 			if (e == start):
@@ -240,62 +242,60 @@ func update():
 		if (e == -1): continue # Likely a near-duplicate point; Skip it.
 
 		# Add the first triangle from the point.
-		var t = self._add_triangle(e, i, self._hull_next[e], -1, -1, self._hull_tri[e])
+		var t = _add_triangle(e, i, _hull_next[e], -1, -1, _hull_tri[e])
 		# Recursively flip triangles from the point until they satisfy the Delaunay condition.
-		self._hull_tri[i] = self._legalize(t + 2)
-		self._hull_tri[e] = t # Keep track of boundary triangles on the hull.
+		_hull_tri[i] = _legalize(t + 2)
+		_hull_tri[e] = t # Keep track of boundary triangles on the hull.
 		hull_size += 1
 
 		# Walk forward through the hull, adding more triangles and flipping recursively.
-		n = self._hull_next[e]
+		n = _hull_next[e]
 
 		while true:
-			var q = self._hull_next[n]
-			if not self.orient(x, y, self.coords[2 * n], self.coords[2 * n + 1], self.coords[2 * q], self.coords[2 * q + 1]): break
-			t = self._add_triangle(n, i, q, self._hull_tri[i], -1, self._hull_tri[n])
-			self._hull_tri[i] = self._legalize(t + 2)
-			self._hull_next[n] = n # Mark as removed.
+			var q = _hull_next[n]
+			if not orient(x, y, coords[2 * n], coords[2 * n + 1], coords[2 * q], coords[2 * q + 1]): break
+			t = _add_triangle(n, i, q, _hull_tri[i], -1, _hull_tri[n])
+			_hull_tri[i] = _legalize(t + 2)
+			_hull_next[n] = n # Mark as removed.
 			hull_size -= 1
 			n = q
 
 		# Walk backward from the other side, adding more triangles and flipping.
 		if (e == start):
 			while true:
-				var q = self._hull_prev[e]
-				if not orient(x, y, self.coords[2 * q], self.coords[2 * q + 1], self.coords[2 * e], self.coords[2 * e + 1]): break
-				t = self._add_triangle(q, i, e, -1, self._hull_tri[e], self._hull_tri[q])
-				self._legalize(t + 2)
-				self._hull_tri[q] = t
-				self._hull_next[e] = e # Mark as removed.
+				var q = _hull_prev[e]
+				if not orient(x, y, coords[2 * q], coords[2 * q + 1], coords[2 * e], coords[2 * e + 1]): break
+				t = _add_triangle(q, i, e, -1, _hull_tri[e], _hull_tri[q])
+				_legalize(t + 2)
+				_hull_tri[q] = t
+				_hull_next[e] = e # Mark as removed.
 				hull_size -= 1
 				e = q
 
 		# Update the hull indices.
-		self._hull_start = e
-		self._hull_prev[i] = e
-		self._hull_next[e] = i
-		self._hull_prev[n] = i
-		self._hull_next[i] = n
+		_hull_start = e
+		_hull_prev[i] = e
+		_hull_next[e] = i
+		_hull_prev[n] = i
+		_hull_next[i] = n
 
 		# Save the two new edges in the hash table.
-		self._hull_hash[self._hash_key(x, y)] = i
-		self._hull_hash[self._hash_key(self.coords[2 * e], self.coords[2 * e + 1])] = e
+		_hull_hash[_hash_key(x, y)] = i
+		_hull_hash[_hash_key(coords[2 * e], coords[2 * e + 1])] = e
 
-	self.hull.resize(hull_size)
-	var e = self._hull_start
-	for i in range(0, hull_size):
-		self.hull[i] = e
-		e = self._hull_next[e]
+	hull.resize(hull_size)
+	var e = _hull_start
+	for i in hull_size:
+		hull[i] = e
+		e = _hull_next[e]
 
 	# Trim typed triangle mesh arrays.
-	self.triangles = self._triangles.slice(0, self.triangles_len - 1)
-	self.halfedges = self._halfedges.slice(0, self.triangles_len - 1)
-
-#	return self.triangles
+	triangles = _triangles.slice(0, triangles_len - 1)
+	halfedges = _halfedges.slice(0, triangles_len - 1)
 
 
 func _hash_key(x, y):
-	return fmod(floor(pseudo_angle(x - self._cx, y - self._cy) * self._hash_size), self._hash_size)
+	return fmod(floor(pseudo_angle(x - _cx, y - _cy) * _hash_size), _hash_size)
 
 
 func _legalize(a):
@@ -304,7 +304,7 @@ func _legalize(a):
 
 	# Recursion eliminated with a fixed-size stack.
 	while true:
-		var b = self._halfedges[a]
+		var b = _halfedges[a]
 
 #		If the pair of triangles doesn't satisfy the Delaunay condition
 #		(p1 is inside the circumcircle of [p0, pl, pr]), flip them,
@@ -334,38 +334,38 @@ func _legalize(a):
 		var al = a0 + (a + 1) % 3
 		var bl = b0 + (b + 2) % 3
 
-		var p0 = self._triangles[ar]
-		var pr = self._triangles[a]
-		var pl = self._triangles[al]
-		var p1 = self._triangles[bl]
+		var p0 = _triangles[ar]
+		var pr = _triangles[a]
+		var pl = _triangles[al]
+		var p1 = _triangles[bl]
 
-		var illegal = self.in_circle(
-			self.coords[2 * p0], self.coords[2 * p0 + 1],
-			self.coords[2 * pr], self.coords[2 * pr + 1],
-			self.coords[2 * pl], self.coords[2 * pl + 1],
-			self.coords[2 * p1], self.coords[2 * p1 + 1]
+		var illegal = in_circle(
+			coords[2 * p0], coords[2 * p0 + 1],
+			coords[2 * pr], coords[2 * pr + 1],
+			coords[2 * pl], coords[2 * pl + 1],
+			coords[2 * p1], coords[2 * p1 + 1]
 		)
 
 		if illegal:
-			self._triangles[a] = p1
-			self._triangles[b] = p0
+			_triangles[a] = p1
+			_triangles[b] = p0
 
-			var hbl = self._halfedges[bl]
+			var hbl = _halfedges[bl]
 
 			# Edge swapped on the other side of the hull (rare); Fix the halfedge reference.
 			if (hbl == -1):
-				var e = self._hull_start
+				var e = _hull_start
 				while true:
-					if self._hull_tri[e] == bl:
-						self._hull_tri[e] = a
+					if _hull_tri[e] == bl:
+						_hull_tri[e] = a
 						break
 
-					e = self._hull_prev[e]
-					if e == self._hull_start: break
+					e = _hull_prev[e]
+					if e == _hull_start: break
 
-			self._link(a, hbl)
-			self._link(b, self._halfedges[ar])
-			self._link(ar, bl)
+			_link(a, hbl)
+			_link(b, _halfedges[ar])
+			_link(ar, bl)
 
 			var br = b0 + (b + 1) % 3
 
@@ -382,24 +382,24 @@ func _legalize(a):
 
 
 func _link(a, b):
-	self._halfedges[a] = b
+	_halfedges[a] = b
 	if (b != -1):
-		self._halfedges[b] = a
+		_halfedges[b] = a
 
 
 # Add a new triangle given vertex indices and adjacent half-edge ids.
 func _add_triangle(i0, i1, i2, a, b, c):
-	var t = self.triangles_len
+	var t = triangles_len
 
-	self._triangles[t] = i0
-	self._triangles[t + 1] = i1
-	self._triangles[t + 2] = i2
+	_triangles[t] = i0
+	_triangles[t + 1] = i1
+	_triangles[t + 2] = i2
 
-	self._link(t, a)
-	self._link(t + 1, b)
-	self._link(t + 2, c)
+	_link(t, a)
+	_link(t + 1, b)
+	_link(t + 2, c)
 
-	self.triangles_len += 3
+	triangles_len += 3
 
 	return t
 
@@ -435,12 +435,12 @@ func orient_if_sure(px, py, rx, ry, qx, qy):
 func orient(rx, ry, qx, qy, px, py):
 	var _sign
 
-	if self.orient_if_sure(px, py, rx, ry, qx, qy):
-		_sign = self.orient_if_sure(px, py, rx, ry, qx, qy)
-	elif self.orient_if_sure(rx, ry, qx, qy, px, py):
-		_sign = self.orient_if_sure(rx, ry, qx, qy, px, py)
-	elif self.orient_if_sure(qx, qy, px, py, rx, ry):
-		_sign = self.orient_if_sure(qx, qy, px, py, rx, ry)
+	if orient_if_sure(px, py, rx, ry, qx, qy):
+		_sign = orient_if_sure(px, py, rx, ry, qx, qy)
+	elif orient_if_sure(rx, ry, qx, qy, px, py):
+		_sign = orient_if_sure(rx, ry, qx, qy, px, py)
+	elif orient_if_sure(qx, qy, px, py, rx, ry):
+		_sign = orient_if_sure(qx, qy, px, py, rx, ry)
 
 	return false if _sign == null else _sign < 0
 
@@ -526,16 +526,16 @@ func quicksort(ids, dists, left, right):
 		var median = (left + right) >> 1
 		var i = left + 1
 		var j = right
-		self.swap(ids, median, i)
+		swap(ids, median, i)
 
 		if (dists[ids[left]] > dists[ids[right]]):
-			self.swap(ids, left, right)
+			swap(ids, left, right)
 
 		if (dists[ids[i]] > dists[ids[right]]):
-			self.swap(ids, i, right)
+			swap(ids, i, right)
 
 		if (dists[ids[left]] > dists[ids[i]]):
-			self.swap(ids, left, i)
+			swap(ids, left, i)
 
 		var temp = ids[i]
 		var temp_dist = dists[temp]
@@ -550,17 +550,17 @@ func quicksort(ids, dists, left, right):
 				if dists[ids[j]] <= temp_dist: break
 
 			if j < i: break
-			self.swap(ids, i, j)
+			swap(ids, i, j)
 
 		ids[left + 1] = ids[j]
 		ids[j] = temp
 
 		if right - i + 1 >= j - left:
-			self.quicksort(ids, dists, i, right)
-			self.quicksort(ids, dists, left, j - 1)
+			quicksort(ids, dists, i, right)
+			quicksort(ids, dists, left, j - 1)
 		else:
-			self.quicksort(ids, dists, left, j - 1)
-			self.quicksort(ids, dists, i, right)
+			quicksort(ids, dists, left, j - 1)
+			quicksort(ids, dists, i, right)
 
 
 func swap(arr, i, j):
