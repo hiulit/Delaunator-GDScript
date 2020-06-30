@@ -1,10 +1,12 @@
 # Delaunator GDScript ![Godot v3.2](https://img.shields.io/badge/godot-v3.2-%23478cbf)
 
-A GDScript port of Delaunator: A fast library for Delaunay triangulation of 2D points.
+A GDScript port of Delaunator: A fast library for [Delaunay triangulation](https://en.wikipedia.org/wiki/Delaunay_triangulation) of 2D points.
 
 The original code is from [Mapbox's Delaunator](https://github.com/mapbox/delaunator). Some reference code is from [Delaunator-Python](https://github.com/HakanSeven12/Delaunator-Python).
 
-## Example
+**Note**: It seems like GDScript is not that *fast* (in reference of the slogan above, taken from the original library). See the [performance benchmarks](#performance).
+
+## Usage
 
 ```gdscript
 const Delaunator = preload("res://Delaunator.gd")
@@ -73,7 +75,6 @@ An array of input coordinates in the form `[x0, y0, x1, y1, ...]`, of the type p
 Updates the triangulation if you modified `Delaunator.new(points).coords` values in place, avoiding expensive memory allocations.
 Useful for iterative relaxation algorithms such as [Lloyd's](https://en.wikipedia.org/wiki/Lloyd%27s_algorithm).
 
-
 ## Performance
 
 Benchmark results performed on a Macbook Pro Retina 15" 2015 with Godot v3.2 and using this method:
@@ -87,4 +88,4 @@ print(elapsed)
 
 | 10 points | 100 points | 1.000 points | 10.000 points | 100.000 points |
 | --: | --: | --: | --: | --: |
-| ~1ms | ~8ms | ~74ms | ~836ms | ~10s|
+| ~1ms | ~6ms | ~67ms | ~760ms | ~9.4s|
