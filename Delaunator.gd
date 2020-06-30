@@ -23,13 +23,13 @@ var _triangles = []  # This array should be a PoolIntArray but we need to use th
 
 
 func _init(points):
+	if points.size() < 3:
+		push_error(ProjectSettings.get_setting("application/config/name") + " needs at least 3 points.")
+		return
+
 	EDGE_STACK.resize(512)
 
 	var n = points.size()
-
-	if points.size() < 3:
-		push_error("Delaunator needs at least 3 points.")
-		return
 
 	coords.resize(n * 2)
 
