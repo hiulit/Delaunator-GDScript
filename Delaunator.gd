@@ -135,6 +135,8 @@ func update():
 				_dist_temp = coords[2 * i] - coords[0]
 			elif coords[2 * i + 1] - coords[1]:
 				_dist_temp = coords[2 * i + 1] - coords[1]
+			else:
+				_dist_temp = 0
 
 			_dists[i] = _dist_temp
 
