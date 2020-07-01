@@ -6,6 +6,12 @@ The original code is from [Mapbox's Delaunator](https://github.com/mapbox/delaun
 
 **Note**: It seems like GDScript is not that *fast* (in reference of the slogan above, taken from the original library). See the [performance benchmarks](#performance).
 
+![Delaunay triangulation](/examples/00-a-delaunay-triangulation.png)
+*Delaunay triangulation*
+
+![Voronoi cells](/examples/00-b-voronoi-cells.png)
+*Voronoi cells*
+
 ## Usage
 
 ```gdscript
@@ -72,8 +78,7 @@ An array of input coordinates in the form `[x0, y0, x1, y1, ...]`, of the type p
 
 ### Delaunator.new(points).update()
 
-Updates the triangulation if you modified `Delaunator.new(points).coords` values in place, avoiding expensive memory allocations.
-Useful for iterative relaxation algorithms such as [Lloyd's](https://en.wikipedia.org/wiki/Lloyd%27s_algorithm).
+Updates the triangulation if you modified `Delaunator.new(points).coords` values in place, avoiding expensive memory allocations. Useful for iterative relaxation algorithms such as [Lloyd's](https://en.wikipedia.org/wiki/Lloyd%27s_algorithm).
 
 ## Performance
 
@@ -89,3 +94,22 @@ print(elapsed)
 | 10 points | 100 points | 1.000 points | 10.000 points | 100.000 points |
 | --: | --: | --: | --: | --: |
 | ~1ms | ~6ms | ~67ms | ~760ms | ~9.4s|
+
+## Changelog
+
+See [CHANGELOG](/CHANGELOG.md).
+
+## Authors
+
+* Me 😛 [hiulit](https://github.com/hiulit).
+
+## Credits
+
+Thanks to:
+
+* [Vladimir Agafonkin](https://github.com/mourner) - for creating [Delaunator](https://github.com/mapbox/delaunator).
+* [Amit Patel](https://github.com/redblobgames) - For the [Delaunator guide](https://mapbox.github.io/delaunator/).
+
+## License
+
+See [LICENSE](/LICENSE).
