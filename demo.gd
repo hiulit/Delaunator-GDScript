@@ -4,19 +4,18 @@ const Delaunator = preload("res://Delaunator.gd")
 
 export var random_points = true
 export var use_mouse_to_draw = false
-export var draw_triangles = false
+export var draw_triangles = true
 export var draw_triangle_edges = false
 export var draw_voronoi_cells = false
 export var draw_voronoi_cells_convex_hull = false
 export var draw_voronoi_edges = false
 export var draw_points = false
 export var draw_triangle_centers = false
-export var create_polygons = false
 export var debug_mode = false
 
 onready var input_points = $GUI/input_points
 
-var default_seed_points = 10
+var default_seed_points = 100
 var initial_points
 var points
 var delaunay
@@ -74,15 +73,15 @@ func _process(_delta):
 
 
 func _draw():
-	if draw_triangles: draw_each_triangle(points, delaunay)
+	if draw_triangles: draw_triangles(points, delaunay)
 
 	if draw_triangle_edges: draw_triangle_edges(points, delaunay)
 
-	if draw_voronoi_cells: draw_each_voronoi_cell(points, delaunay)
+	if draw_voronoi_cells: draw_voronoi_cells(points, delaunay)
 
-	if draw_voronoi_cells_convex_hull: draw_each_voronoi_cell_convex_hull(points, delaunay)
+	if draw_voronoi_cells_convex_hull: draw_voronoi_cells_convex_hull(points, delaunay)
 
-	if draw_voronoi_edges: draw_each_voronoi_edge(points, delaunay)
+	if draw_voronoi_edges: draw_voronoi_edges(points, delaunay)
 
 	if draw_points: draw_points()
 
@@ -108,7 +107,103 @@ func get_random_points(seed_points = default_seed_points):
 	return new_points
 
 
-# Helper functions.
+func draw_triangles(points, delaunay):
+	for t in delaunay.triangles.size() / 3:
+		var color = Color(randf(), randf(), randf(), 1)
+#		draw_polyline(points_of_triangle(points, delaunay, t), Color.black)
+		draw_polygon(points_of_triangle(points, delaunay, t), PoolColorArray([color]))
+
+
+func draw_triangle_edges(points, delaunay):
+	for e in delaunay.triangles.size():
+		if e > delaunay.halfedges[e]:
+			var p = points[delaunay.triangles[e]]
+			var q = points[delaunay.triangles[next_half_edge(e)]]
+			draw_line(p, q, Color.black)
+
+
+func draw_voronoi_edges(points, d):
+	for e in d.triangles.size():
+		if (e < d.halfedges[e]):
+			var p = triangle_center(points, d, triangle_of_edge(e));
+			var q = triangle_center(points, d, triangle_of_edge(d.halfedges[e]));
+			draw_line(
+				Vector2(p[0], p[1]),
+				Vector2(q[0], q[1]),
+				Color.white)
+
+
+func draw_voronoi_cells(points, delaunay):
+	var seen = []
+	for e in delaunay.triangles.size():
+		var triangles = []
+		var vertices = []
+		var p = delaunay.triangles[next_half_edge(e)]
+		if not seen.has(p):
+			seen.append(p)
+			var edges = edges_around_point(delaunay, e)
+			for edge in edges:
+				triangles.append(triangle_of_edge(edge))
+			for t in triangles:
+				vertices.append(triangle_center(points, delaunay, t))
+
+		if triangles.size() > 2:
+			var color = Color(randf(), randf(), randf(), 1)
+			var voronoi_cell = PoolVector2Array()
+			for vertice in vertices:
+				voronoi_cell.append(Vector2(vertice[0], vertice[1]))
+			draw_polygon(voronoi_cell, PoolColorArray([color]))
+
+
+func draw_voronoi_cells_convex_hull(points, delaunay):
+	var index = {}
+
+	for e in delaunay.triangles.size():
+		var endpoint = delaunay.triangles[next_half_edge(e)]
+		if (!index.has(endpoint) or delaunay.halfedges[e] == -1):
+			index[endpoint] = e
+
+	for p in points.size():
+		var triangles = []
+		var vertices = []
+		var incoming = index.get(p)
+
+		if incoming == null:
+			triangles.append(0)
+		else:
+			var edges = edges_around_point(delaunay, incoming)
+			for e in edges:
+				triangles.append(triangle_of_edge(e))
+
+		for t in triangles:
+			vertices.append(triangle_center(points, delaunay, t))
+
+		if triangles.size() > 2:
+			var color = Color(randf(), randf(), randf(), 1)
+			var voronoi_cell = PoolVector2Array()
+			for vertice in vertices:
+				voronoi_cell.append(Vector2(vertice[0], vertice[1]))
+			draw_polygon(voronoi_cell, PoolColorArray([color]))
+
+
+func draw_points():
+	for point in points:
+		draw_circle(point, 5, Color("#bf4040"))
+
+
+func draw_triangle_centers():
+	for t in delaunay.triangles.size() / 3:
+		draw_circle(
+			Vector2(
+				triangle_center(points, delaunay, t)[0],
+				triangle_center(points, delaunay, t)[1]
+			), 5, Color.white)
+		draw_circle(
+			Vector2(
+				triangle_center(points, delaunay, t)[0],
+				triangle_center(points, delaunay, t)[1]
+			), 4, Color("#4040bf"))
+
 
 func edges_of_triangle(t):
 	return [3 * t, 3 * t + 1, 3 * t + 2]
@@ -116,14 +211,6 @@ func edges_of_triangle(t):
 
 func triangle_of_edge(e):
 	return floor(e / 3)
-
-
-#func triangle_id_to_edge_id(t):
-#	return [3 * t, 3 * t + 1, 3 * t + 2]
-
-
-#func edge_id_to_triangle_id(e):
-#	return floor(e / 3)
 
 
 func next_half_edge(e):
@@ -141,33 +228,7 @@ func points_of_triangle(points, delaunay, t):
 	return points_of_triangle
 
 
-func draw_triangle_edges(points, delaunay):
-	for e in delaunay.triangles.size():
-		if e > delaunay.halfedges[e]:
-			var p = points[delaunay.triangles[e]]
-			var q = points[delaunay.triangles[next_half_edge(e)]]
-			draw_line(p, q, Color.black)
-
-
-func draw_each_triangle(points, delaunay):
-	for t in delaunay.triangles.size() / 3:
-		var color = Color(randf(), randf(), randf(), 1)
-#		draw_polyline(points_of_triangle(points, delaunay, t), Color.black)
-		draw_polygon(points_of_triangle(points, delaunay, t), PoolColorArray([color]))
-
-
-func draw_each_voronoi_edge(points, d):
-	for e in d.triangles.size():
-		if (e < d.halfedges[e]):
-			var p = triangle_center(points, d, triangle_of_edge(e));
-			var q = triangle_center(points, d, triangle_of_edge(d.halfedges[e]));
-			draw_line(
-				Vector2(p[0], p[1]),
-				Vector2(q[0], q[1]),
-				Color.white)
-
-
-func cell_edge_ids(delaunay, start):
+func edges_around_point(delaunay, start):
 	var result = []
 	var incoming = start
 	while true:
@@ -176,73 +237,6 @@ func cell_edge_ids(delaunay, start):
 		incoming = delaunay.halfedges[outgoing];
 		if not (incoming != -1 and incoming != start): break
 	return result
-
-
-func draw_each_voronoi_cell(points, delaunay):
-	var seen = []
-	for e in delaunay.triangles.size():
-		var triangles = []
-		var vertices = []
-		var p = delaunay.triangles[next_half_edge(e)]
-		if not seen.has(p):
-			seen.append(p)
-			var edges = cell_edge_ids(delaunay, e)
-			for edge in edges:
-				triangles.append(triangle_of_edge(edge))
-			for t in triangles:
-				vertices.append(triangle_center(points, delaunay, t))
-
-		if triangles.size() > 2:
-			var color = Color(randf(), randf(), randf(), 1)
-			var voronoi_cell = PoolVector2Array()
-			for vertice in vertices:
-				voronoi_cell.append(Vector2(vertice[0], vertice[1]))
-			if create_polygons:
-				var new_polygon = Polygon2D.new()
-				new_polygon.add_to_group("polygons")
-				new_polygon.polygon = voronoi_cell
-				new_polygon.color = color
-				get_parent().add_child(new_polygon, true)
-			else:
-				draw_polygon(voronoi_cell, PoolColorArray([color]))
-
-
-func draw_each_voronoi_cell_convex_hull(points, delaunay):
-	var index = {}
-
-	for e in delaunay.triangles.size():
-		var endpoint = delaunay.triangles[next_half_edge(e)]
-		if (!index.has(endpoint) or delaunay.halfedges[e] == -1):
-			index[endpoint] = e
-
-	for p in points.size():
-		var triangles = []
-		var vertices = []
-		var incoming = index.get(p)
-
-		if incoming == null:
-			triangles.append(0)
-		else:
-			var edges = cell_edge_ids(delaunay, incoming)
-			for e in edges:
-				triangles.append(triangle_of_edge(e))
-
-		for t in triangles:
-			vertices.append(triangle_center(points, delaunay, t))
-
-		if triangles.size() > 2:
-			var color = Color(randf(), randf(), randf(), 1)
-			var voronoi_cell = PoolVector2Array()
-			for vertice in vertices:
-				voronoi_cell.append(Vector2(vertice[0], vertice[1]))
-			if create_polygons:
-				var new_polygon = Polygon2D.new()
-				new_polygon.add_to_group("polygons")
-				new_polygon.polygon = voronoi_cell
-				new_polygon.color = color
-				get_parent().add_child(new_polygon, true)
-			else:
-				draw_polygon(voronoi_cell, PoolColorArray([color]))
 
 
 func triangle_adjacent_to_triangle(delaunay, t):
@@ -295,31 +289,9 @@ func incenter(a, b, c):
 	return [c_x, c_y]
 
 
-func draw_points():
-	for point in points:
-		draw_circle(point, 5, Color("#bf4040"))
-
-
-func draw_triangle_centers():
-	for t in delaunay.triangles.size() / 3:
-		draw_circle(
-			Vector2(
-				triangle_center(points, delaunay, t)[0],
-				triangle_center(points, delaunay, t)[1]
-			), 5, Color.white)
-		draw_circle(
-			Vector2(
-				triangle_center(points, delaunay, t)[0],
-				triangle_center(points, delaunay, t)[1]
-			), 4, Color("#4040bf"))
-
-
 func _on_get_random_points_pressed():
 	randomize()
 	points = get_random_points(int(input_points.text))
-	if create_polygons:
-		for polygon in get_tree().get_nodes_in_group("polygons"):
-			polygon.queue_free()
 	var start = OS.get_ticks_msec()
 	delaunay = Delaunator.new(points)
 	var elapsed = OS.get_ticks_msec() - start
