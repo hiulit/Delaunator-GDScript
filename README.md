@@ -4,7 +4,7 @@ A GDScript port of Delaunator: A fast library for [Delaunay triangulation](https
 
 * [Guide to data structures](/DATA_STRUCTURES.md)
 
-The original code is from [Mapbox's Delaunator](https://github.com/mapbox/delaunator). Some reference code is from [Delaunator-Python](https://github.com/HakanSeven12/Delaunator-Python).
+This is a port of [Mapbox's Delaunator](https://github.com/mapbox/delaunator).
 
 **Note**: It seems like GDScript is not that *fast* (in reference of the slogan above, taken from the original library). See the [performance benchmarks](#performance).
 
@@ -109,8 +109,9 @@ See [CHANGELOG](/CHANGELOG.md).
 
 Thanks to:
 
-* [Vladimir Agafonkin](https://github.com/mourner) - For creating [Delaunator](https://github.com/mapbox/delaunator).
-* [Amit Patel](https://github.com/redblobgames) - For the [Delaunator guide](https://mapbox.github.io/delaunator/).
+* [Vladimir Agafonkin](https://github.com/mourner) - For creating [Delaunator](https://github.com/mapbox/delaunator), the original JavaScript library.
+* [Amit Patel](https://github.com/redblobgames) - For the [Delaunator guide](https://mapbox.github.io/delaunator/), which my data structures guide is based of.
+* [Hakan Seven](https://github.com/HakanSeven12) - For the [Delaunator-Python](https://github.com/HakanSeven12/Delaunator-Python) port, which I used for some reference code.
 
 ## License
 
