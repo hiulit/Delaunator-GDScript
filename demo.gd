@@ -3,12 +3,18 @@ extends Node2D
 const Delaunator = preload("res://Delaunator.gd")
 
 export var random_points = true
-export var use_mouse = false
-export var draw = false
+export var use_mouse_to_draw = false
+export var draw_triangles = false
+export var draw_triangle_edges = false
+export var draw_voronoi_cells = false
+export var draw_voronoi_cells_convex_hull = false
+export var draw_voronoi_edges = false
+export var draw_points = false
+export var draw_triangle_centers = false
 export var create_polygons = false
 export var debug_mode = false
 
-onready var input_points = $input_points
+onready var input_points = $GUI/input_points
 
 var default_seed_points = 10
 var initial_points
@@ -23,6 +29,7 @@ var delay_timer_limit = 0.5
 var moving = false
 
 func _ready():
+	# Get number of seed points from the input box.
 	input_points.text = str(default_seed_points)
 
 	size = get_viewport().size
@@ -33,14 +40,6 @@ func _ready():
 		Vector2(size.x, size.y),
 		Vector2(0, size.y)
 	])
-	
-#	initial_points = PoolVector2Array([ 
-#		Vector2(168, 180),
-#		Vector2(168, 178),
-#		Vector2(168, 179),
-#		Vector2(168, 181),
-#		Vector2(168, 183)
-#	])
 
 	if random_points:
 		points = get_random_points(int(input_points.text))
@@ -56,20 +55,9 @@ func _ready():
 	if debug_mode: print("delaunay.hull: ", delaunay.hull)
 	if debug_mode: print("delaunay.coords: ", delaunay.coords)
 
-	for i in range(0, delaunay.triangles.size(), 3):
-		coordinates.append([
-			points[delaunay.triangles[i]],
-			points[delaunay.triangles[i + 1]],
-			points[delaunay.triangles[i + 2]]
-		])
-	if debug_mode: print("coordinates: ", coordinates)
-
-#	call_deferred("for_each_voronoi_cell", points, delaunay)
-#	call_deferred("for_each_voronoi_cell_convex_hull", points, delaunay)
-
 
 func _input(event):
-	if use_mouse and event is InputEventMouseMotion:
+	if use_mouse_to_draw and event is InputEventMouseMotion:
 		moving = true
 
 
@@ -86,39 +74,19 @@ func _process(_delta):
 
 
 func _draw():
-	# Draw triangles.
-#	draw_each_triangle(points, delaunay)
+	if draw_triangles: draw_each_triangle(points, delaunay)
 
-	draw_each_voronoi_cell(points, delaunay)
+	if draw_triangle_edges: draw_triangle_edges(points, delaunay)
 
-#	draw_each_voronoi_cell_convex_hull(points, delaunay)
+	if draw_voronoi_cells: draw_each_voronoi_cell(points, delaunay)
 
-#	draw_each_voronoi_edge(points, delaunay)
+	if draw_voronoi_cells_convex_hull: draw_each_voronoi_cell_convex_hull(points, delaunay)
 
-#	draw_triangles_edges(points, delaunay)
+	if draw_voronoi_edges: draw_each_voronoi_edge(points, delaunay)
 
-	# Draw points (triangle vertices).
-#	for point in points:
-#		draw_circle(point, 5, Color("#bf4040"))
+	if draw_points: draw_points()
 
-#	# Draw triangle vertices.
-#	for coord in coordinates:
-#		for point in coord:
-#			draw_circle(point, 5, Color("#bf4040"))
-
-#	# Draw triangle centers.
-#	for t in delaunay.triangles.size() / 3:
-#		draw_circle(
-#			Vector2(
-#				triangle_center(points, delaunay, t)[0],
-#				triangle_center(points, delaunay, t)[1]
-#			), 5, Color.white)
-#		draw_circle(
-#			Vector2(
-#				triangle_center(points, delaunay, t)[0],
-#				triangle_center(points, delaunay, t)[1]
-#			), 4, Color("#4040bf"))
-	pass
+	if draw_triangle_centers: draw_triangle_centers()
 
 
 func get_random_points(seed_points = default_seed_points):
@@ -140,8 +108,22 @@ func get_random_points(seed_points = default_seed_points):
 	return new_points
 
 
-func triangle_id_to_edge_id(t):
+# Helper functions.
+
+func edges_of_triangle(t):
 	return [3 * t, 3 * t + 1, 3 * t + 2]
+
+
+func triangle_of_edge(e):
+	return floor(e / 3)
+
+
+#func triangle_id_to_edge_id(t):
+#	return [3 * t, 3 * t + 1, 3 * t + 2]
+
+
+#func edge_id_to_triangle_id(e):
+#	return floor(e / 3)
 
 
 func next_half_edge(e):
@@ -154,9 +136,17 @@ func prev_half_edge(e):
 
 func points_of_triangle(points, delaunay, t):
 	var points_of_triangle = []
-	for e in triangle_id_to_edge_id(t):
+	for e in edges_of_triangle(t):
 		points_of_triangle.append(points[delaunay.triangles[e]])
 	return points_of_triangle
+
+
+func draw_triangle_edges(points, delaunay):
+	for e in delaunay.triangles.size():
+		if e > delaunay.halfedges[e]:
+			var p = points[delaunay.triangles[e]]
+			var q = points[delaunay.triangles[next_half_edge(e)]]
+			draw_line(p, q, Color.black)
 
 
 func draw_each_triangle(points, delaunay):
@@ -166,19 +156,11 @@ func draw_each_triangle(points, delaunay):
 		draw_polygon(points_of_triangle(points, delaunay, t), PoolColorArray([color]))
 
 
-func draw_triangles_edges(points, delaunay):
-	for e in delaunay.triangles.size():
-		if e > delaunay.halfedges[e]:
-			var p = points[delaunay.triangles[e]]
-			var q = points[delaunay.triangles[next_half_edge(e)]]
-			draw_line(p, q, Color.black)
-
-
 func draw_each_voronoi_edge(points, d):
 	for e in d.triangles.size():
 		if (e < d.halfedges[e]):
-			var p = triangle_center(points, d, edge_id_to_triangle_id(e));
-			var q = triangle_center(points, d, edge_id_to_triangle_id(d.halfedges[e]));
+			var p = triangle_center(points, d, triangle_of_edge(e));
+			var q = triangle_center(points, d, triangle_of_edge(d.halfedges[e]));
 			draw_line(
 				Vector2(p[0], p[1]),
 				Vector2(q[0], q[1]),
@@ -206,7 +188,7 @@ func draw_each_voronoi_cell(points, delaunay):
 			seen.append(p)
 			var edges = cell_edge_ids(delaunay, e)
 			for edge in edges:
-				triangles.append(edge_id_to_triangle_id(edge))
+				triangles.append(triangle_of_edge(edge))
 			for t in triangles:
 				vertices.append(triangle_center(points, delaunay, t))
 
@@ -217,6 +199,7 @@ func draw_each_voronoi_cell(points, delaunay):
 				voronoi_cell.append(Vector2(vertice[0], vertice[1]))
 			if create_polygons:
 				var new_polygon = Polygon2D.new()
+				new_polygon.add_to_group("polygons")
 				new_polygon.polygon = voronoi_cell
 				new_polygon.color = color
 				get_parent().add_child(new_polygon, true)
@@ -242,7 +225,7 @@ func draw_each_voronoi_cell_convex_hull(points, delaunay):
 		else:
 			var edges = cell_edge_ids(delaunay, incoming)
 			for e in edges:
-				triangles.append(edge_id_to_triangle_id(e))
+				triangles.append(triangle_of_edge(e))
 
 		for t in triangles:
 			vertices.append(triangle_center(points, delaunay, t))
@@ -254,6 +237,7 @@ func draw_each_voronoi_cell_convex_hull(points, delaunay):
 				voronoi_cell.append(Vector2(vertice[0], vertice[1]))
 			if create_polygons:
 				var new_polygon = Polygon2D.new()
+				new_polygon.add_to_group("polygons")
 				new_polygon.polygon = voronoi_cell
 				new_polygon.color = color
 				get_parent().add_child(new_polygon, true)
@@ -261,17 +245,12 @@ func draw_each_voronoi_cell_convex_hull(points, delaunay):
 				draw_polygon(voronoi_cell, PoolColorArray([color]))
 
 
-func edge_id_to_triangle_id(e):
-	return floor(e / 3)
-
-
-# Returns an array of triangle ids.
-func triangles_adjacent_to_triangle(delaunay, t):
+func triangle_adjacent_to_triangle(delaunay, t):
 	var adjacent_triangles = []
-	for e in triangle_id_to_edge_id(t):
+	for e in edges_of_triangle(t):
 		var opposite = delaunay.halfedges[e]
 		if opposite >= 0:
-			adjacent_triangles.append(edge_id_to_triangle_id(opposite))
+			adjacent_triangles.append(triangle_of_edge(opposite))
 
 	return adjacent_triangles;
 
@@ -316,13 +295,33 @@ func incenter(a, b, c):
 	return [c_x, c_y]
 
 
+func draw_points():
+	for point in points:
+		draw_circle(point, 5, Color("#bf4040"))
+
+
+func draw_triangle_centers():
+	for t in delaunay.triangles.size() / 3:
+		draw_circle(
+			Vector2(
+				triangle_center(points, delaunay, t)[0],
+				triangle_center(points, delaunay, t)[1]
+			), 5, Color.white)
+		draw_circle(
+			Vector2(
+				triangle_center(points, delaunay, t)[0],
+				triangle_center(points, delaunay, t)[1]
+			), 4, Color("#4040bf"))
+
+
 func _on_get_random_points_pressed():
-	points = initial_points
 	randomize()
 	points = get_random_points(int(input_points.text))
+	if create_polygons:
+		for polygon in get_tree().get_nodes_in_group("polygons"):
+			polygon.queue_free()
 	var start = OS.get_ticks_msec()
 	delaunay = Delaunator.new(points)
-#	draw = true
-	if draw: update()
 	var elapsed = OS.get_ticks_msec() - start
-	print(ProjectSettings.get_setting("application/config/name"), " execution time: ", elapsed,  "ms")
+	if debug_mode: print(ProjectSettings.get_setting("application/config/name"), " execution time: ", elapsed,  "ms")
+	update()
