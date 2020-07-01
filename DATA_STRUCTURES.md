@@ -84,7 +84,7 @@ func points_of_triangle(points, delaunay, t):
     points_of_triangle.append(points[delaunay.triangles[e]])
   return points_of_triangle
 
-func draw_each_triangle(points, delaunay):
+func draw_triangles(points, delaunay):
   for t in delaunay.triangles.size() / 3:
     var color = Color(randf(), randf(), randf(), 1)
     draw_polygon(points_of_triangle(points, delaunay, t), PoolColorArray([color]))
@@ -179,7 +179,7 @@ func triangle_center(points, delaunay, t, center = "circumcenter"):
 With the circumcenters we can draw the Voronoi edges without constructing the polygons. Each Delaunay triangle half-edge corresponds to one Voronoi polygon half-edge. The Delaunay half-edge connects two points, `delaunay.triangles[e]` and `delaunay.triangles[next_half_edge(e)]`. The Voronoi half-edge connects the circumcenters of two triangles, `triangle_of_edge(e)` and `triangle_of_edge(delaunay.halfedges[e])`. We can iterate over the half-edges and construct the line segments:
 
 ```gdscript
-func draw_each_voronoi_edge(points, delaunay):
+func draw_voronoi_edges(points, delaunay):
   for e in delaunay.triangles.size():
     if (e < delaunay.halfedges[e]):
       var p = triangle_center(points, delaunay, triangle_of_edge(e));
@@ -209,7 +209,7 @@ func edges_around_point(delaunay, start):
   return result
 ```
 
-Note that this requires any incoming half-edge that leads to the point. If you need a quick way to find such a half-edge given a point, it can be useful to build an index of these half-edges. For an example, see the modified version of `draw_each_voronoi_cell` at the [end of the page](#convex-hull).
+Note that this requires any incoming half-edge that leads to the point. If you need a quick way to find such a half-edge given a point, it can be useful to build an index of these half-edges. For an example, see the modified version of `draw_voronoi_cells` at the [end of the page](#convex-hull).
 
 
 ### Drawing Voronoi cells
@@ -217,7 +217,7 @@ Note that this requires any incoming half-edge that leads to the point. If you n
 To draw the Voronoi cells, we can turn a point's incoming half-edges into triangles, and then find their circumcenters. We can iterate over half-edges, but since many half-edges lead to a point, we need to keep track of which points have already been visited.
 
 ```gdscript
-func draw_each_voronoi_cell(points, delaunay):
+func draw_voronoi_cells(points, delaunay):
   var seen = []
   for e in delaunay.triangles.size():
     var triangles = []
@@ -258,7 +258,7 @@ There's a problem with the `edges_around_point` loop above. Points on the convex
 Here's an example of how to find the "leftmost" half-edge:
 
 ```gdscript
-func draw_each_voronoi_cell_convex_hull(points, delaunay):
+func draw_voronoi_cells_convex_hull(points, delaunay):
   var index = {}
 
   for e in delaunay.triangles.size():
