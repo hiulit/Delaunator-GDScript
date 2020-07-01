@@ -4,9 +4,13 @@
 
 [node name="demo" type="Node2D"]
 script = ExtResource( 1 )
+draw_triangles = true
+draw_points = true
 debug_mode = true
 
-[node name="get_random_points" type="Button" parent="."]
+[node name="GUI" type="CanvasLayer" parent="."]
+
+[node name="get_random_points" type="Button" parent="GUI"]
 margin_left = 16.0
 margin_top = 16.0
 margin_right = 148.0
@@ -16,7 +20,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="input_points" type="TextEdit" parent="."]
+[node name="input_points" type="TextEdit" parent="GUI"]
 margin_left = 160.0
 margin_top = 16.0
 margin_right = 232.0
@@ -24,4 +28,4 @@ margin_bottom = 48.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
-[connection signal="pressed" from="get_random_points" to="." method="_on_get_random_points_pressed"]
+[connection signal="pressed" from="GUI/get_random_points" to="." method="_on_get_random_points_pressed"]
