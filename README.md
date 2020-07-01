@@ -1,4 +1,4 @@
-# Delaunator GDScript ![Godot v3.2](https://img.shields.io/badge/godot-v3.2-%23478cbf)
+# Delaunator GDScript ![Godot v3.2](https://img.shields.io/badge/Godot-v3.2-%23478cbf?logo=godot-engine&logoColor=white)
 
 A GDScript port of Delaunator: A fast library for [Delaunay triangulation](https://en.wikipedia.org/wiki/Delaunay_triangulation) of 2D points.
 
