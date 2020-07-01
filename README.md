@@ -2,6 +2,8 @@
 
 A GDScript port of Delaunator: A fast library for [Delaunay triangulation](https://en.wikipedia.org/wiki/Delaunay_triangulation) of 2D points.
 
+* [Guide to data structures](/DATA_STRUCTURES.md)
+
 The original code is from [Mapbox's Delaunator](https://github.com/mapbox/delaunator). Some reference code is from [Delaunator-Python](https://github.com/HakanSeven12/Delaunator-Python).
 
 **Note**: It seems like GDScript is not that *fast* (in reference of the slogan above, taken from the original library). See the [performance benchmarks](#performance).
