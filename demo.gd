@@ -109,6 +109,7 @@ func get_random_points(seed_points = default_seed_points):
 func draw_triangles(points, delaunay):
 	for t in delaunay.triangles.size() / 3:
 		var color = Color(randf(), randf(), randf(), 1)
+		# Toggle these lines to draw poly lines or polygons.
 #		draw_polyline(points_of_triangle(points, delaunay, t), Color.black)
 		draw_polygon(points_of_triangle(points, delaunay, t), PoolColorArray([color]))
 
