@@ -107,9 +107,9 @@ See [CHANGELOG](/CHANGELOG.md).
 
 Thanks to:
 
-* [Vladimir Agafonkin](https://github.com/mourner) - for creating [Delaunator](https://github.com/mapbox/delaunator).
+* [Vladimir Agafonkin](https://github.com/mourner) - For creating [Delaunator](https://github.com/mapbox/delaunator).
 * [Amit Patel](https://github.com/redblobgames) - For the [Delaunator guide](https://mapbox.github.io/delaunator/).
 
 ## License
 
-See [LICENSE](/LICENSE).
+[MIT License](/LICENSE).
