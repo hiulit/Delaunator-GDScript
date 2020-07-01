@@ -28,7 +28,6 @@ var delay_timer_limit = 0.5
 var moving = false
 
 func _ready():
-	# Get number of seed points from the input box.
 	input_points.text = str(default_seed_points)
 
 	size = get_viewport().size
