@@ -302,5 +302,6 @@ func _on_get_random_points_pressed():
 	var start = OS.get_ticks_msec()
 	delaunay = Delaunator.new(points)
 	var elapsed = OS.get_ticks_msec() - start
-	if debug_mode: print(ProjectSettings.get_setting("application/config/name"), " execution time: ", elapsed,  "ms")
+	if debug_mode:
+		print(ProjectSettings.get_setting("application/config/name"), " execution time: ", elapsed,  "ms")
 	update()
