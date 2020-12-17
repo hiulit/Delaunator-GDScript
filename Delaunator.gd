@@ -141,7 +141,7 @@ func update():
 			_dists[i] = _dist_temp
 
 		quicksort(_ids, _dists, 0, n - 1)
-		var hull = []
+		hull = []
 		hull.resize(n)
 		var j = 0
 		var d0 = -INF
