@@ -72,19 +72,26 @@ func _process(_delta):
 
 
 func _draw():
-	if draw_triangles: draw_triangles(points, delaunay)
+	if draw_triangles:
+		draw_triangles(points, delaunay)
 
-	if draw_triangle_edges: draw_triangle_edges(points, delaunay)
+	if draw_triangle_edges:
+		draw_triangle_edges(points, delaunay)
 
-	if draw_voronoi_cells: draw_voronoi_cells(points, delaunay)
+	if draw_voronoi_cells:
+		draw_voronoi_cells(points, delaunay)
 
-	if draw_voronoi_cells_convex_hull: draw_voronoi_cells_convex_hull(points, delaunay)
+	if draw_voronoi_cells_convex_hull:
+		draw_voronoi_cells_convex_hull(points, delaunay)
 
-	if draw_voronoi_edges: draw_voronoi_edges(points, delaunay)
+	if draw_voronoi_edges:
+		draw_voronoi_edges(points, delaunay)
 
-	if draw_points: draw_points()
+	if draw_points:
+		draw_points()
 
-	if draw_triangle_centers: draw_triangle_centers()
+	if draw_triangle_centers:
+		draw_triangle_centers()
 
 
 func get_random_points(seed_points = default_seed_points):
