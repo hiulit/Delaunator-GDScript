@@ -6,7 +6,7 @@
 
 ## [1.1.0] - 2021-07-19
 
-### Chaged
+### Changed
 
 - Made Delaunator statically-typed, thanks to [#3](https://github.com/hiulit/Delaunator-GDScript/pull/3).
 
