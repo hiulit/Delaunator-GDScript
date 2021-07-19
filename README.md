@@ -1,8 +1,10 @@
-# Delaunator GDScript ![Godot v3.2](https://img.shields.io/badge/Godot-v3.2-%23478cbf?logo=godot-engine&logoColor=white)
+# Delaunator GDScript
+
+![Godot v3.x](https://img.shields.io/badge/Godot-v3.x-%23478cbf?logo=godot-engine&logoColor=white&style=flat-square) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/hiulit/Delaunator-GDScript?&style=flat-square) ![GitHub license](https://img.shields.io/github/license/hiulit/Delaunator-GDScript?&style=flat-square)
 
 A GDScript port of Delaunator: A fast library for [Delaunay triangulation](https://en.wikipedia.org/wiki/Delaunay_triangulation) of 2D points.
 
-* [Guide to data structures](/DATA_STRUCTURES.md)
+* [Guide to data structures](/DATA_STRUCTURES.md).
 
 This is a port of [Mapbox's Delaunator](https://github.com/mapbox/delaunator).
 
@@ -14,7 +16,7 @@ This is a port of [Mapbox's Delaunator](https://github.com/mapbox/delaunator).
 ![Voronoi cells](/examples/00-b-voronoi-cells.png)
 *Voronoi cells*
 
-## Usage
+## 🚀 Usage
 
 ```gdscript
 const Delaunator = preload("res://Delaunator.gd")
@@ -39,7 +41,7 @@ print(delaunay.coords)
 
 ```
 
-## API Reference
+## 📑 API Reference
 
 ### Delaunator.new(points)
 
@@ -82,9 +84,9 @@ An array of input coordinates in the form `[x0, y0, x1, y1, ...]`, of the type p
 
 Updates the triangulation if you modified `Delaunator.new(points).coords` values in place, avoiding expensive memory allocations. Useful for iterative relaxation algorithms such as [Lloyd's](https://en.wikipedia.org/wiki/Lloyd%27s_algorithm).
 
-## Performance
+## 📈 Performance
 
-Benchmark results performed on a Macbook Pro Retina 15" 2015 with Godot v3.2 and using this method:
+Benchmark results performed on a Macbook Pro Retina 15" 2015 with Godot 3.2 and 3.3 using this method:
 
 ```gdscript
 var start = OS.get_ticks_msec()
@@ -93,26 +95,59 @@ var elapsed = OS.get_ticks_msec() - start
 print(elapsed)
 ```
 
-| 10 points | 100 points | 1.000 points | 10.000 points | 100.000 points |
-| --: | --: | --: | --: | --: |
-| ~1ms | ~6ms | ~67ms | ~760ms | ~9.4s|
+| | 10 points | 100 points | 1.000 points | 10.000 points | 100.000 points |
+| :-- | --: | --: | --: | --: | --: |
+| **Godot 3.2** | ~1ms | ~6ms | ~67ms | ~760ms | ~9.4s |
+| **Godot 3.3** | ~1ms | ~8ms | ~77ms | ~850ms | ~10.0s |
 
-## Changelog
+
+## 🗒️ Changelog
 
 See [CHANGELOG](/CHANGELOG.md).
 
-## Authors
+## 👤 Author
 
-* Me 😛 [hiulit](https://github.com/hiulit).
+**hiulit**
 
-## Credits
+- Twitter: [@hiulit](https://twitter.com/hiulit)
+- GitHub: [@hiulit](https://github.com/hiulit)
+
+## 🤝 Contributing
+
+Feel free to:
+
+- [Open an issue](https://github.com/hiulit/Delaunator-GDScript/issues) if you find a bug.
+- [Create a pull request](https://github.com/hiulit/Delaunator-GDScript/pulls) if you have a new cool feature to add to the project.
+- [Start a new discussion](https://github.com/hiulit/Delaunator-GDScript/discussions) about a feature request.
+
+
+## 🙌 Supporting this project
+
+If you love this project or find it helpful, please consider supporting it through any size donations to help make it better ❤️.
+
+[![Become a patron](https://img.shields.io/badge/Become_a_patron-ff424d?logo=Patreon&style=for-the-badge&logoColor=white)](https://www.patreon.com/hiulit)
+
+[![Suppor me on Ko-Fi](https://img.shields.io/badge/Support_me_on_Ko--fi-F16061?logo=Ko-fi&style=for-the-badge&logoColor=white)](https://ko-fi.com/F2F7136ND)
+
+[![Buy me a coffee](https://img.shields.io/badge/Buy_me_a_coffee-FFDD00?logo=buy-me-a-coffee&style=for-the-badge&logoColor=black)](https://www.buymeacoffee.com/hiulit)
+
+[![Donate Paypal](https://img.shields.io/badge/PayPal-00457C?logo=PayPal&style=for-the-badge&label=Donate)](https://www.paypal.com/paypalme/hiulit)
+
+If you can't, consider sharing it with the world...
+
+[![](https://img.shields.io/badge/Share_on_Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fhiulit%2FDelaunator-GDScript&text=%22Delaunator-GDScript%22%0AA%20GDScript%20port%20of%20Delaunator%3A%20A%20fast%20library%20for%20Delaunay%20triangulation%20of%202D%20points%20by%20%40hiulit)
+
+... or giving it a [star ⭐️](https://github.com/hiulit/Delaunator-GDScript/stargazers).
+
+## 👏 Credits
 
 Thanks to:
 
-* [Vladimir Agafonkin](https://github.com/mourner) - For creating [Delaunator](https://github.com/mapbox/delaunator), the original JavaScript library.
-* [Amit Patel](https://github.com/redblobgames) - For the [Delaunator guide](https://mapbox.github.io/delaunator/), which my data structures guide is based of.
-* [Hakan Seven](https://github.com/HakanSeven12) - For the [Delaunator-Python](https://github.com/HakanSeven12/Delaunator-Python) port, which I used for some reference code.
+- [Vladimir Agafonkin](https://github.com/mourner) - For creating [Delaunator](https://github.com/mapbox/delaunator), the original JavaScript library.
+- [Amit Patel](https://github.com/redblobgames) - For the [Delaunator guide](https://mapbox.github.io/delaunator/), which my data structures guide is based of.
+- [Hakan Seven](https://github.com/HakanSeven12) - For the [Delaunator-Python](https://github.com/HakanSeven12/Delaunator-Python) port, which I used for some reference code.
 
-## License
+## 📝 Licenses
 
-[MIT License](/LICENSE).
+- Source code: [MIT License](/LICENSE).
+- Mapbox's Delaunator: [ISC License](/LICENSE_MABOX_DELAUNATOR.txt).
