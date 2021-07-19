@@ -25,4 +25,5 @@ margin_bottom = 48.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
 [connection signal="pressed" from="GUI/get_random_points" to="." method="_on_get_random_points_pressed"]
